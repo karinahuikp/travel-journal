@@ -14,6 +14,12 @@ const HEADERS = {
 
 function doGet(e) {
   try {
+    const action = e.parameter.action || "getTrip";
+
+    if (action === "getAllTrips") {
+      return jsonOutput({ ok: true, trips: readAllTrips() });
+    }
+
     const tripId = e.parameter.tripId || e.parameter.trip;
     if (!tripId) return jsonOutput({ ok: false, error: "Missing tripId" });
 
@@ -24,6 +30,16 @@ function doGet(e) {
   } catch (error) {
     return jsonOutput({ ok: false, error: String(error) });
   }
+}
+
+function readAllTrips() {
+  ensureSheets();
+
+  return rowsAsObjects(SHEETS.trips)
+    .filter((trip) => trip.tripId)
+    .map((trip) => readTrip(trip.tripId))
+    .filter(Boolean)
+    .sort((a, b) => String(a.startDate).localeCompare(String(b.startDate)));
 }
 
 function doPost(e) {

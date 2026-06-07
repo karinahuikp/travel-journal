@@ -169,10 +169,19 @@ function rowsAsObjects(sheetName) {
   const headers = values[0];
   return values.slice(1).map((row) => {
     return headers.reduce((record, header, index) => {
-      record[header] = row[index];
+      record[header] = normalizeCellValue(header, row[index]);
       return record;
     }, {});
   });
+}
+
+function normalizeCellValue(header, value) {
+  if (Object.prototype.toString.call(value) === "[object Date]" && !isNaN(value.getTime())) {
+    if (header === "updatedAt") return value.toISOString();
+    return Utilities.formatDate(value, Session.getScriptTimeZone(), "yyyy-MM-dd");
+  }
+
+  return value;
 }
 
 function deleteRowsByTripId(sheetName, tripId) {

@@ -15,6 +15,10 @@
   letter-spacing: 0;
 }
 
+.hidden {
+  display: none !important;
+}
+
 body {
   background:
     radial-gradient(circle at top left, rgba(244, 231, 220, 0.78), transparent 34rem),

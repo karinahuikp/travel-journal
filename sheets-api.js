@@ -37,6 +37,7 @@ async function fetchTripFromGoogleSheet(tripId) {
   }
 
   const url = new URL(SHEETS_API_CONFIG.webAppUrl);
+  url.searchParams.set("action", "getTrip");
   url.searchParams.set("tripId", tripId);
 
   const response = await fetch(url.toString());
@@ -47,6 +48,28 @@ async function fetchTripFromGoogleSheet(tripId) {
   }
 
   return result.trip;
+}
+
+async function fetchAllTripsFromGoogleSheet() {
+  if (!SHEETS_API_CONFIG.webAppUrl) {
+    throw new Error("請先在 sheets-api.js 填入 Apps Script Web App URL。");
+  }
+
+  const url = new URL(SHEETS_API_CONFIG.webAppUrl);
+  url.searchParams.set("action", "getAllTrips");
+
+  const response = await fetch(url.toString());
+  const result = await response.json();
+
+  if (!result.ok) {
+    if (result.error === "Missing tripId") {
+      throw new Error("Apps Script 目前尚未支援 action=getAllTrips。請貼上新版 apps-script/Code.gs 並重新部署 Web App。");
+    }
+
+    throw new Error(result.error || "讀取 Google Sheet 旅程列表失敗。");
+  }
+
+  return result.trips || [];
 }
 
 function toSheetTrip(trip) {

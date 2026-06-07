@@ -156,18 +156,42 @@
       renderDashboard();
     });
 
-    fetchAllTripsFromGoogleSheet()
-      .then((result) => {
+    loadPublicDashboard();
+
+    async function loadPublicDashboard() {
+      try {
+        if (typeof fetchAllTripsFromGoogleSheet !== "function") {
+          throw new Error("找不到 fetchAllTripsFromGoogleSheet()。請確認 sheets-api.js 已更新並成功載入。");
+        }
+
+        const result = await withTimeout(
+          fetchAllTripsFromGoogleSheet(),
+          15000,
+          "讀取 Google Sheet 逾時。請確認 Apps Script Web App 已重新部署，且 doGet() 支援 action=getAllTrips。"
+        );
         trips = result;
         loadingState.classList.add("hidden");
         dashboardContent.classList.remove("hidden");
         renderDashboard();
-      })
-      .catch((error) => {
-        loadingState.classList.add("hidden");
-        errorText.textContent = error.message;
-        errorState.classList.remove("hidden");
-      });
+      } catch (error) {
+        showLoadError(error.message);
+      }
+    }
+
+    function withTimeout(promise, timeoutMs, message) {
+      return Promise.race([
+        promise,
+        new Promise((resolve, reject) => {
+          setTimeout(() => reject(new Error(message)), timeoutMs);
+        })
+      ]);
+    }
+
+    function showLoadError(message) {
+      loadingState.classList.add("hidden");
+      errorText.textContent = message;
+      errorState.classList.remove("hidden");
+    }
 
     function renderDashboard() {
       const sortedTrips = [...trips].sort((a, b) => String(a.startDate).localeCompare(String(b.startDate)));

@@ -39,6 +39,20 @@ function initDashboard() {
     renderDashboard();
   });
 
+  tripGrid.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-delete-trip]");
+    if (!button) return;
+
+    const tripId = button.dataset.deleteTrip;
+    const trip = trips.find((item) => item.id === tripId);
+    const confirmed = confirm(`確定要刪除「${trip?.title || "這個旅程"}」嗎？這只會移除本機 LocalStorage 資料。`);
+    if (!confirmed) return;
+
+    trips = trips.filter((item) => item.id !== tripId);
+    saveTrips();
+    renderDashboard();
+  });
+
   function renderDashboard() {
     const sortedTrips = [...trips].sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
     const hasTrips = sortedTrips.length > 0;
@@ -365,14 +379,19 @@ function renderTripCard(trip) {
     : 0;
 
   return `
-    <a href="trip-detail.html?id=${encodeURIComponent(trip.id)}" class="block rounded-lg bg-white/90 p-5 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-matcha">
+    <article class="rounded-lg bg-white/90 p-5 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md">
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
           <p class="text-xs font-bold uppercase tracking-[0.18em] text-persimmon">${formatDate(trip.date)}</p>
           <h3 class="mt-3 break-words text-2xl font-bold">${escapeHtml(trip.title)}</h3>
           <p class="mt-2 text-sm font-bold text-matcha">${escapeHtml(trip.location)} · ${trip.days} 天</p>
         </div>
-        <span class="rounded-full bg-washi px-3 py-1 text-xs font-bold text-slate-700">手帳</span>
+        <div class="flex flex-col items-end gap-2">
+          <span class="rounded-full bg-washi px-3 py-1 text-xs font-bold text-slate-700">手帳</span>
+          <button class="rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-persimmon transition hover:border-persimmon hover:text-persimmon" data-delete-trip="${trip.id}" type="button">
+            刪除
+          </button>
+        </div>
       </div>
       <div class="mt-5 grid grid-cols-2 gap-3 text-center">
         <div class="rounded-md bg-paper p-3">
@@ -390,7 +409,10 @@ function renderTripCard(trip) {
           ${trip.members.length > 4 ? `<span class="rounded-full bg-washi px-3 py-1 text-xs font-bold text-slate-700">+${trip.members.length - 4}</span>` : ""}
         </div>
       ` : ""}
-    </a>
+      <a href="trip-detail.html?id=${encodeURIComponent(trip.id)}" class="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-matcha px-5 text-sm font-bold text-white transition hover:bg-matcha/90">
+        查看每日行程
+      </a>
+    </article>
   `;
 }
 

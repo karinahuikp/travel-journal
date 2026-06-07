@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shared Trip | Travel Journal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Inter", "Noto Sans TC", "system-ui", "sans-serif"]
+          },
+          colors: {
+            paper: "#fbf7ef",
+            washi: "#f0e6d6",
+            ink: "#24313f",
+            matcha: "#5f7f6a",
+            persimmon: "#c76d4b",
+            sakura: "#e7b7aa",
+            sora: "#7aa5b8"
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="min-h-screen bg-paper text-ink">
+  <main class="mx-auto min-h-screen max-w-6xl px-5 py-6 sm:px-8">
+    <section class="rounded-lg bg-white shadow-sm ring-1 ring-black/5">
+      <div class="relative overflow-hidden rounded-t-lg bg-matcha px-5 py-10 text-white sm:px-8">
+        <img
+          class="absolute inset-0 h-full w-full object-cover opacity-20"
+          src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80"
+          alt="Shared travel view"
+        >
+        <div class="relative">
+          <p class="text-xs font-bold uppercase tracking-[0.22em] text-washi">Shared Travel Journal</p>
+          <h1 id="shareTitle" class="mt-3 text-4xl font-bold">讀取旅程中</h1>
+          <p id="shareMeta" class="mt-3 text-sm leading-6 text-white/85"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="shareError" class="mt-6 hidden rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center">
+      <p class="text-lg font-bold">無法讀取分享旅程</p>
+      <p id="shareErrorText" class="mt-2 text-sm text-slate-600"></p>
+    </section>
+
+    <div id="shareContent" class="mt-6 hidden space-y-6">
+      <section class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-black/5">
+        <h2 class="text-xl font-bold">團友名單</h2>
+        <div id="shareMembers" class="mt-4 flex flex-wrap gap-2"></div>
+      </section>
+
+      <section>
+        <div class="mb-4">
+          <h2 class="text-2xl font-bold">每日行程</h2>
+          <p class="text-sm text-slate-600">只讀分享版，不提供編輯功能。</p>
+        </div>
+        <div id="shareDailyPlans" class="space-y-4"></div>
+      </section>
+
+      <section>
+        <div class="mb-4">
+          <h2 class="text-2xl font-bold">記帳總覽</h2>
+        </div>
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-black/5">
+            <p class="text-xs font-bold text-slate-500">總支出</p>
+            <p id="shareTotalExpense" class="mt-2 text-3xl font-bold text-matcha">0</p>
+          </div>
+          <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-black/5">
+            <p class="text-xs font-bold text-slate-500">每人平均支出</p>
+            <p id="shareAverageExpense" class="mt-2 text-3xl font-bold text-matcha">0</p>
+          </div>
+        </div>
+        <div id="shareExpenses" class="mt-4 space-y-4"></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="sheets-api.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const tripId = params.get("tripId") || params.get("trip");
+
+    const shareTitle = document.querySelector("#shareTitle");
+    const shareMeta = document.querySelector("#shareMeta");
+    const shareError = document.querySelector("#shareError");
+    const shareErrorText = document.querySelector("#shareErrorText");
+    const shareContent = document.querySelector("#shareContent");
+    const shareMembers = document.querySelector("#shareMembers");
+    const shareDailyPlans = document.querySelector("#shareDailyPlans");
+    const shareTotalExpense = document.querySelector("#shareTotalExpense");
+    const shareAverageExpense = document.querySelector("#shareAverageExpense");
+    const shareExpenses = document.querySelector("#shareExpenses");
+
+    if (!tripId) {
+      showError("分享連結缺少 tripId。");
+    } else {
+      fetchTripFromGoogleSheet(tripId)
+        .then(renderSharedTrip)
+        .catch((error) => showError(error.message));
+    }
+
+    function renderSharedTrip(trip) {
+      shareTitle.textContent = trip.title || "未命名旅程";
+      shareMeta.textContent = `${formatDate(trip.startDate)} - ${formatDate(trip.endDate)} · ${trip.destination || "未設定目的地"}`;
+      shareContent.classList.remove("hidden");
+
+      const members = Array.isArray(trip.members) ? trip.members : [];
+      shareMembers.innerHTML = members.length
+        ? members.map((member) => `<span class="rounded-full bg-washi px-3 py-2 text-sm font-bold text-slate-700">${escapeHtml(member)}</span>`).join("")
+        : `<p class="rounded-md bg-paper p-4 text-sm text-slate-600">尚未提供團友名單。</p>`;
+
+      const dailyPlans = Array.isArray(trip.dailyPlans) ? trip.dailyPlans : [];
+      shareDailyPlans.innerHTML = dailyPlans.length
+        ? dailyPlans.map(renderPlan).join("")
+        : `<div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">尚未提供每日行程。</div>`;
+
+      const expenses = Array.isArray(trip.expenses) ? trip.expenses : [];
+      const totals = getExpenseTotals(expenses);
+      shareTotalExpense.textContent = formatCurrencyTotals(totals);
+      shareAverageExpense.textContent = formatCurrencyTotals(getAverageTotals(totals, members.length));
+      shareExpenses.innerHTML = expenses.length
+        ? expenses.map(renderExpense).join("")
+        : `<div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">尚未提供支出資料。</div>`;
+    }
+
+    function renderPlan(plan) {
+      return `
+        <article class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-black/5">
+          <p class="text-xs font-bold uppercase tracking-[0.18em] text-persimmon">${formatDate(plan.date)}</p>
+          <h3 class="mt-2 text-2xl font-bold">Day ${plan.dayNumber} · ${escapeHtml(plan.location || "")}</h3>
+          <dl class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div class="rounded-md bg-paper p-3">
+              <dt class="text-xs font-bold text-slate-500">車程／交通方式</dt>
+              <dd class="mt-1 font-semibold">${escapeHtml(plan.transport || "未填寫")}</dd>
+            </div>
+            <div class="rounded-md bg-paper p-3">
+              <dt class="text-xs font-bold text-slate-500">住宿地點</dt>
+              <dd class="mt-1 font-semibold">${escapeHtml(plan.accommodation || "未填寫")}</dd>
+            </div>
+          </dl>
+          <p class="mt-4 text-sm font-bold text-slate-700">景點列表</p>
+          <div class="mt-2 flex flex-wrap gap-2">
+            ${(plan.spots || []).map((spot) => `<span class="rounded-full bg-washi px-3 py-1 text-sm font-bold text-slate-700">${escapeHtml(spot)}</span>`).join("")}
+          </div>
+        </article>
+      `;
+    }
+
+    function renderExpense(expense) {
+      return `
+        <article class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-black/5">
+          <p class="text-xs font-bold uppercase tracking-[0.18em] text-persimmon">${formatDate(expense.date)}</p>
+          <h3 class="mt-2 text-2xl font-bold">${escapeHtml(expense.name || "")}</h3>
+          <p class="mt-1 text-sm font-bold text-matcha">${escapeHtml(expense.category || "")} · ${escapeHtml(expense.payer || "")} 支付</p>
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div class="rounded-md bg-paper p-3">
+              <p class="text-xs font-bold text-slate-500">金額</p>
+              <p class="mt-1 text-xl font-bold">${formatAmount(expense.amount)} ${escapeHtml(expense.currency || "")}</p>
+            </div>
+            <div class="rounded-md bg-paper p-3">
+              <p class="text-xs font-bold text-slate-500">每人金額</p>
+              <p class="mt-1 text-xl font-bold">${formatAmount(expense.splitAmount)} ${escapeHtml(expense.currency || "")}</p>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function showError(message) {
+      shareTitle.textContent = "分享旅程";
+      shareMeta.textContent = "";
+      shareErrorText.textContent = message;
+      shareError.classList.remove("hidden");
+    }
+
+    function getExpenseTotals(expenses) {
+      return expenses.reduce((totals, expense) => {
+        const currency = expense.currency || "";
+        totals[currency] = (totals[currency] || 0) + (Number(expense.amount) || 0);
+        return totals;
+      }, {});
+    }
+
+    function getAverageTotals(totals, memberCount) {
+      return Object.entries(totals).reduce((averages, [currency, amount]) => {
+        averages[currency] = memberCount ? Math.round((amount / memberCount) * 100) / 100 : 0;
+        return averages;
+      }, {});
+    }
+
+    function formatCurrencyTotals(totals) {
+      const entries = Object.entries(totals);
+      if (!entries.length) return "0";
+      return entries.map(([currency, amount]) => `${formatAmount(amount)} ${currency}`).join(" / ");
+    }
+
+    function formatAmount(value) {
+      return new Intl.NumberFormat("zh-Hant", { maximumFractionDigits: 2 }).format(Number(value) || 0);
+    }
+
+    function formatDate(value) {
+      if (!value) return "未設定日期";
+      return new Intl.DateTimeFormat("zh-Hant", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      }).format(new Date(`${value}T00:00:00`));
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>

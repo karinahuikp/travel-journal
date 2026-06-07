@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trip Detail | Travel Journal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Inter", "Noto Sans TC", "system-ui", "sans-serif"]
+          },
+          colors: {
+            paper: "#fbf7ef",
+            washi: "#f0e6d6",
+            ink: "#24313f",
+            matcha: "#5f7f6a",
+            persimmon: "#c76d4b",
+            sakura: "#e7b7aa",
+            sora: "#7aa5b8"
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body data-page="trip-detail" class="min-h-screen bg-paper text-ink">
+  <main class="mx-auto min-h-screen max-w-6xl px-5 py-6 sm:px-8">
+    <nav class="mb-6 flex items-center justify-between gap-3">
+      <a href="index.html" class="rounded-md border border-washi bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-washi">
+        返回 Dashboard
+      </a>
+      <p class="text-xs font-bold uppercase tracking-[0.22em] text-matcha">Trip Detail</p>
+    </nav>
+
+    <section id="missingTrip" class="hidden rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center">
+      <p class="text-lg font-bold">找不到旅程</p>
+      <p class="mt-2 text-sm text-slate-600">請回 Dashboard 選擇一張旅程卡片。</p>
+    </section>
+
+    <div id="detailContent" class="hidden">
+      <section class="rounded-lg bg-white shadow-sm ring-1 ring-black/5">
+        <div class="relative overflow-hidden rounded-t-lg bg-matcha px-5 py-8 text-white sm:px-8">
+          <img
+            class="absolute inset-0 h-full w-full object-cover opacity-20"
+            src="https://images.unsplash.com/photo-1505069446780-4ef442b5207f?auto=format&fit=crop&w=1800&q=80"
+            alt="Travel journal stationery"
+          >
+          <div class="relative">
+            <p id="tripMeta" class="text-sm font-bold text-washi"></p>
+            <h1 id="tripName" class="mt-2 text-4xl font-bold"></h1>
+            <p id="tripDestination" class="mt-3 text-sm leading-6 text-white/85"></p>
+            <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <a id="budgetLink" class="inline-flex min-h-11 items-center justify-center rounded-md bg-persimmon px-5 text-sm font-bold text-white transition hover:bg-persimmon/90" href="#">
+                分帳記帳
+              </a>
+              <button id="syncSheetButton" class="inline-flex min-h-11 items-center justify-center rounded-md bg-white px-5 text-sm font-bold text-matcha transition hover:bg-washi" type="button">
+                同步到 Google Sheet
+              </button>
+              <button id="copyShareLinkButton" class="inline-flex min-h-11 items-center justify-center rounded-md border border-white/60 px-5 text-sm font-bold text-white transition hover:bg-white/10" type="button">
+                複製分享連結
+              </button>
+            </div>
+            <p id="sheetSyncStatus" class="mt-3 text-sm font-bold text-washi"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-6 grid gap-6 lg:grid-cols-[360px_1fr]">
+        <aside class="space-y-6">
+          <section class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-black/5">
+            <h2 class="text-xl font-bold">團友管理</h2>
+            <form id="memberForm" class="mt-4 flex gap-2">
+              <input id="memberName" class="min-w-0 flex-1 rounded-md border border-slate-300 px-3 py-2 focus:border-matcha focus:outline-none focus:ring-2 focus:ring-matcha/20" type="text" placeholder="新增團友" required>
+              <button class="rounded-md bg-matcha px-4 py-2 text-sm font-bold text-white transition hover:bg-matcha/90" type="submit">
+                新增
+              </button>
+            </form>
+            <div id="memberList" class="mt-4 flex flex-wrap gap-2"></div>
+            <p id="emptyMembers" class="mt-4 hidden rounded-md bg-paper p-4 text-sm text-slate-600">尚未加入團友。記帳頁的支付者選單會使用這份名單。</p>
+          </section>
+
+          <form id="itineraryForm" class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-black/5">
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="text-xl font-bold">新增每日行程</h2>
+              <button class="rounded-md bg-persimmon px-4 py-2 text-sm font-bold text-white transition hover:bg-persimmon/90" type="submit">
+                儲存
+              </button>
+            </div>
+
+            <div class="mt-5 space-y-4">
+              <div class="grid grid-cols-2 gap-3">
+                <label class="block">
+                  <span class="text-sm font-bold text-slate-700">日期</span>
+                  <input id="itineraryDate" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-matcha focus:outline-none focus:ring-2 focus:ring-matcha/20" type="date" required>
+                </label>
+                <label class="block">
+                  <span class="text-sm font-bold text-slate-700">Day 幾</span>
+                  <input id="itineraryDay" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-matcha focus:outline-none focus:ring-2 focus:ring-matcha/20" type="number" min="1" value="1" required>
+                </label>
+              </div>
+
+              <label class="block">
+                <span class="text-sm font-bold text-slate-700">地點</span>
+                <input id="itineraryPlace" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-matcha focus:outline-none focus:ring-2 focus:ring-matcha/20" type="text" placeholder="例如：京都東山" required>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-slate-700">車程／交通方式</span>
+                <input id="itineraryDrive" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-matcha focus:outline-none focus:ring-2 focus:ring-matcha/20" type="text" placeholder="例如：巴士 30 分鐘">
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-slate-700">住宿地點</span>
+                <input id="itineraryLodging" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-matcha focus:outline-none focus:ring-2 focus:ring-matcha/20" type="text" placeholder="飯店或民宿">
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-slate-700">景點列表</span>
+                <textarea id="itinerarySpots" class="mt-1 min-h-28 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-matcha focus:outline-none focus:ring-2 focus:ring-matcha/20" placeholder="一行一個景點，或用逗號分隔" required></textarea>
+              </label>
+            </div>
+          </form>
+        </aside>
+
+        <section class="min-w-0">
+          <div class="mb-4">
+            <h2 class="text-2xl font-bold">每日行程</h2>
+            <p class="text-sm text-slate-600">依 Day 順序排列，Dashboard 月曆會同步顯示景點。</p>
+          </div>
+
+          <div id="emptyItineraries" class="rounded-lg border border-dashed border-slate-300 bg-white/80 p-8 text-center">
+            <p class="text-lg font-bold">還沒有每日行程</p>
+            <p class="mt-2 text-sm text-slate-600">從左側新增第一天的地點、交通方式、住宿與景點。</p>
+          </div>
+
+          <div id="itineraryList" class="space-y-4"></div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script src="sheets-api.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

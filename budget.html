@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Budget | Travel Journal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Inter", "Noto Sans TC", "system-ui", "sans-serif"]
+          },
+          colors: {
+            paper: "#fbf7ef",
+            washi: "#f0e6d6",
+            ink: "#24313f",
+            matcha: "#5f7f6a",
+            persimmon: "#c76d4b",
+            sakura: "#e7b7aa",
+            sora: "#7aa5b8"
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body data-page="budget" class="min-h-screen bg-paper text-ink">
+  <main class="mx-auto min-h-screen max-w-6xl px-5 py-6 sm:px-8">
+    <nav class="mb-6 flex items-center justify-between gap-3">
+      <a id="backToTrip" href="index.html" class="rounded-md border border-washi bg-white px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-washi">
+        返回旅程
+      </a>
+      <p class="text-xs font-bold uppercase tracking-[0.22em] text-matcha">Budget</p>
+    </nav>
+
+    <section id="missingBudgetTrip" class="hidden rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center">
+      <p class="text-lg font-bold">找不到旅程</p>
+      <p class="mt-2 text-sm text-slate-600">請回 Dashboard 選擇一張旅程卡片。</p>
+    </section>
+
+    <div id="budgetContent" class="hidden">
+      <section class="rounded-lg bg-white shadow-sm ring-1 ring-black/5">
+        <div class="relative overflow-hidden rounded-t-lg bg-matcha px-5 py-8 text-white sm:px-8">
+          <img
+            class="absolute inset-0 h-full w-full object-cover opacity-20"
+            src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1800&q=80"
+            alt="Friends traveling together"
+          >
+          <div class="relative">
+            <p id="budgetTripMeta" class="text-sm font-bold text-washi"></p>
+            <h1 id="budgetTripName" class="mt-2 text-4xl font-bold">分帳記帳</h1>
+            <p id="budgetMembers" class="mt-3 text-sm leading-6 text-white/85"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-6 grid gap-6 lg:grid-cols-[360px_1fr]">
+        <form id="expenseForm" class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-black/5">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-xl font-bold">新增支出</h2>
+            <button id="expenseSubmit" class="rounded-md bg-persimmon px-4 py-2 text-sm font-bold text-white transition hover:bg-persimmon/90 disabled:cursor-not-allowed disabled:bg-slate-300" type="submit">
+              儲存
+            </button>
+          </div>
+
+          <div class="mt-5 space-y-4">
+            <label class="block">
+              <span class="text-sm font-bold text-slate-700">日期</span>
+              <input id="expenseDate" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-matcha focus:outline-none focus:ring-2 focus:ring-matcha/20" type="date" required>
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-bold text-slate-700">名稱</span>
+              <input id="expenseName" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-matcha focus:outline-none focus:ring-2 focus:ring-matcha/20" type="text" placeholder="例如：拉麵晚餐" required>
+            </label>
+
+            <div class="grid grid-cols-2 gap-3">
+              <label class="block">
+                <span class="text-sm font-bold text-slate-700">類別</span>
+                <select id="expenseCategory" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-matcha focus:outline-none focus:ring-2 focus:ring-matcha/20">
+                  <option>餐飲</option>
+                  <option>交通</option>
+                  <option>住宿</option>
+                  <option>景點</option>
+                  <option>購物</option>
+                  <option>其他</option>
+                </select>
+              </label>
+
+              <label class="block">
+                <span class="text-sm font-bold text-slate-700">貨幣</span>
+                <select id="expenseCurrency" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-matcha focus:outline-none focus:ring-2 focus:ring-matcha/20">
+                  <option>JPY</option>
+                  <option>HKD</option>
+                  <option>TWD</option>
+                  <option>USD</option>
+                  <option>EUR</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="block">
+              <span class="text-sm font-bold text-slate-700">金額</span>
+              <input id="expenseAmount" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-matcha focus:outline-none focus:ring-2 focus:ring-matcha/20" type="number" min="0" step="0.01" placeholder="1000" required>
+            </label>
+
+            <label class="block">
+              <span class="text-sm font-bold text-slate-700">支付者</span>
+              <select id="expensePayer" class="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 focus:border-matcha focus:outline-none focus:ring-2 focus:ring-matcha/20" required></select>
+              <span id="payerHint" class="mt-2 block text-xs font-semibold text-slate-500"></span>
+            </label>
+
+            <div class="rounded-md bg-paper p-4">
+              <p class="text-xs font-bold text-slate-500">每人金額</p>
+              <p id="splitPreview" class="mt-1 text-2xl font-bold text-matcha">0 JPY</p>
+            </div>
+          </div>
+        </form>
+
+        <section class="min-w-0">
+          <div class="grid gap-3 sm:grid-cols-2">
+            <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-black/5">
+              <p class="text-xs font-bold text-slate-500">總支出</p>
+              <p id="totalExpense" class="mt-2 text-3xl font-bold text-matcha">0</p>
+            </div>
+            <div class="rounded-lg bg-white p-5 shadow-sm ring-1 ring-black/5">
+              <p class="text-xs font-bold text-slate-500">每人平均支出</p>
+              <p id="averageExpense" class="mt-2 text-3xl font-bold text-matcha">0</p>
+            </div>
+          </div>
+
+          <div class="mt-6 mb-4">
+            <h2 class="text-2xl font-bold">支出列表</h2>
+            <p class="text-sm text-slate-600">每筆支出會保存到這趟旅程的 LocalStorage 資料。</p>
+          </div>
+
+          <div id="emptyExpenses" class="rounded-lg border border-dashed border-slate-300 bg-white/80 p-8 text-center">
+            <p class="text-lg font-bold">還沒有支出</p>
+            <p class="mt-2 text-sm text-slate-600">新增第一筆餐飲、交通或住宿費用。</p>
+          </div>
+
+          <div id="expenseList" class="space-y-4"></div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

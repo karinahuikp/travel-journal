@@ -138,7 +138,8 @@ function initTripDetail() {
     place: document.querySelector("#itineraryPlace"),
     drive: document.querySelector("#itineraryDrive"),
     lodging: document.querySelector("#itineraryLodging"),
-    spots: document.querySelector("#itinerarySpots")
+    spots: document.querySelector("#itinerarySpots"),
+    notes: document.querySelector("#itineraryNotes")
   };
 
   tripName.textContent = trip.title;
@@ -206,6 +207,7 @@ function initTripDetail() {
       drive: fields.drive.value.trim(),
       lodging: fields.lodging.value.trim(),
       spots: parseSpots(fields.spots.value),
+      notes: fields.notes.value.trim(),
       createdAt: new Date().toISOString()
     };
 
@@ -501,6 +503,12 @@ function renderDateSpots(selectedDateLabel, dateSpots) {
       <ul class="mt-2 grid gap-2 sm:grid-cols-2">
         ${entry.spots.map((spot) => `<li class="rounded-md bg-white px-4 py-3 text-sm font-semibold">${escapeHtml(spot)}</li>`).join("")}
       </ul>
+      ${entry.notes ? `
+        <div class="mt-4 rounded-md bg-white px-4 py-3">
+          <p class="text-xs font-bold text-slate-500">備註</p>
+          <p class="mt-1 whitespace-pre-wrap text-sm font-semibold text-slate-700">${escapeHtml(entry.notes)}</p>
+        </div>
+      ` : ""}
     </article>
   `).join("");
 }
@@ -533,6 +541,12 @@ function renderItineraryCard(item) {
           ${item.spots.map((spot) => `<span class="rounded-full bg-washi px-3 py-1 text-sm font-bold text-slate-700">${escapeHtml(spot)}</span>`).join("")}
         </div>
       </div>
+      ${item.notes ? `
+        <div class="mt-4 rounded-md bg-paper p-3">
+          <p class="text-xs font-bold text-slate-500">備註</p>
+          <p class="mt-1 whitespace-pre-wrap font-semibold">${escapeHtml(item.notes)}</p>
+        </div>
+      ` : ""}
     </article>
   `;
 }
@@ -577,7 +591,8 @@ function getEntriesByDate() {
         place: item.place,
         drive: item.drive,
         lodging: item.lodging,
-        spots: item.spots
+        spots: item.spots,
+        notes: item.notes
       });
     });
 
@@ -606,7 +621,8 @@ function loadTrips() {
       itineraries: Array.isArray(trip.itineraries)
         ? trip.itineraries.map((item) => ({
             ...item,
-            spots: Array.isArray(item.spots) ? item.spots : []
+            spots: Array.isArray(item.spots) ? item.spots : [],
+            notes: item.notes || ""
           }))
         : [],
       expenses: Array.isArray(trip.expenses)

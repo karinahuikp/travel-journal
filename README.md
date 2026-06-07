@@ -9,13 +9,14 @@
 - Add Trip 頁面新增旅程名稱、日期、天數與目的地
 - 每個旅程可保存團友名單
 - 點擊旅程卡片進入 Trip Detail
-- Trip Detail 顯示每日行程，並可新增日期、Day、地點、車程、住宿地點與景點列表
+- Trip Detail 顯示每日行程，並可新增日期、Day、地點、車程、住宿地點、景點列表與備註
 - Trip Detail 可新增、刪除與查看團友
 - Budget 頁面可新增分帳支出、選擇支付者、計算每人金額
 - Budget 頁面顯示總支出、每人平均支出與支出列表
 - 旅程資料儲存在瀏覽器 LocalStorage
 - 可同步旅程資料到 Google Sheet
 - `share.html` 可讀取 Google Sheet 並顯示只讀團友版
+- `public-dashboard.html` 可讀取 Google Sheet 並顯示所有旅程的只讀團友總覽
 - 適合部署到 GitHub Pages
 
 ## 技術
@@ -38,10 +39,11 @@
 - `trip-detail.html?id=xxx`：旅程詳情與每日行程
 - `budget.html?id=xxx`：旅程分帳記帳
 - `share.html?tripId=xxx`：Google Sheet 只讀分享頁
+- `public-dashboard.html`：Google Sheet 只讀團友總覽頁
 
 ## Google Sheet 雲端分享 MVP
 
-這個版本保留 LocalStorage 作為本機資料來源與備份。當你在旅程詳情頁按「同步到 Google Sheet」時，網站會把該旅程資料送到 Google Apps Script，再寫入 Google Sheet。團友打開 `share.html?tripId=xxx` 後，只會讀取 Google Sheet 資料，不會看到任何新增、編輯或刪除按鈕。
+這個版本保留 LocalStorage 作為本機資料來源與備份。當你在旅程詳情頁按「同步到 Google Sheet」時，網站會把該旅程資料送到 Google Apps Script，再寫入 Google Sheet。團友打開 `public-dashboard.html` 或 `share.html?tripId=xxx` 後，只會讀取 Google Sheet 資料，不會看到任何新增、編輯或刪除按鈕。
 
 ### 建立 Google Sheet
 
@@ -60,8 +62,8 @@
 
 `DailyPlans`
 
-| tripId | planId | date | dayNumber | location | transport | accommodation | spots |
-|---|---|---|---|---|---|---|---|
+| tripId | planId | date | dayNumber | location | transport | accommodation | spots | notes |
+|---|---|---|---|---|---|---|---|---|
 
 `Members`
 
@@ -112,6 +114,13 @@ const SHEETS_API_CONFIG = {
 4. 回到旅程詳情頁，按「同步到 Google Sheet」。
 5. 按「複製分享連結」。
 6. 將 `share.html?tripId=xxx` 分享給團友。
+
+分享方式：
+
+- `public-dashboard.html`：團友可查看所有已同步旅程、月曆、每日景點與記帳總覽。
+- `share.html?tripId=xxx`：團友可查看單一旅程的完整每日行程與詳細支出。
+
+如果更新了 [apps-script/Code.gs](apps-script/Code.gs)，請重新貼到 Apps Script 並重新部署 Web App，`public-dashboard.html` 才能使用 `action=getAllTrips` 讀取所有旅程。
 
 ### 安全提醒
 

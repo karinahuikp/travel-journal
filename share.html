@@ -149,6 +149,12 @@
           <div class="mt-2 flex flex-wrap gap-2">
             ${(plan.spots || []).map((spot) => `<span class="rounded-full bg-washi px-3 py-1 text-sm font-bold text-slate-700">${escapeHtml(spot)}</span>`).join("")}
           </div>
+          ${plan.notes ? `
+            <div class="mt-4 rounded-md bg-paper p-3">
+              <p class="text-xs font-bold text-slate-500">備註</p>
+              <p class="mt-1 whitespace-pre-wrap font-semibold">${escapeHtml(plan.notes)}</p>
+            </div>
+          ` : ""}
         </article>
       `;
     }

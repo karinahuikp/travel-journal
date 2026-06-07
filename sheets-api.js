@@ -87,7 +87,8 @@ function toSheetTrip(trip) {
       location: item.place,
       transport: item.drive,
       accommodation: item.lodging,
-      spots: Array.isArray(item.spots) ? item.spots : []
+      spots: Array.isArray(item.spots) ? item.spots : [],
+      notes: item.notes || ""
     })),
     expenses: (trip.expenses || []).map((expense) => ({
       id: expense.id,

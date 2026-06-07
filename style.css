@@ -1,0 +1,314 @@
+:root {
+  --color-bg: #F7F1E8;
+  --color-text: #243142;
+  --color-muted: #6F7A86;
+  --color-primary: #6F8A72;
+  --color-accent: #D27A55;
+  --color-card: rgba(255, 255, 255, 0.58);
+  --color-card-border: rgba(255, 255, 255, 0.45);
+  --color-soft: #EFE3D0;
+  --color-blush: #F4E7DC;
+  --shadow-glass: 0 18px 45px rgba(80, 65, 45, 0.12);
+}
+
+* {
+  letter-spacing: 0;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(244, 231, 220, 0.78), transparent 34rem),
+    linear-gradient(135deg, var(--color-bg), #fbf6ee 46%, #f2e8dc);
+  color: var(--color-text);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(111, 138, 114, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(111, 138, 114, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.text-ink,
+.text-slate-700,
+.text-slate-600 {
+  color: var(--color-text) !important;
+}
+
+.text-slate-500,
+.text-slate-600 {
+  color: var(--color-muted) !important;
+}
+
+.text-matcha {
+  color: var(--color-primary) !important;
+}
+
+.text-persimmon {
+  color: var(--color-accent) !important;
+}
+
+.bg-paper,
+.bg-mist,
+.bg-white,
+.bg-white\/80,
+.bg-white\/90 {
+  background: var(--color-card) !important;
+}
+
+.bg-washi,
+.bg-sakura\/40 {
+  background: rgba(239, 227, 208, 0.72) !important;
+}
+
+.bg-matcha {
+  background: var(--color-primary) !important;
+}
+
+.bg-persimmon {
+  background: var(--color-accent) !important;
+}
+
+.border-washi,
+.border-slate-300,
+.ring-black\/5 {
+  border-color: var(--color-card-border) !important;
+  --tw-ring-color: rgba(255, 255, 255, 0.45) !important;
+}
+
+.page-hero {
+  position: relative;
+  border-radius: 24px;
+  margin: 1.25rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  box-shadow: 0 24px 60px rgba(84, 72, 56, 0.16);
+  background: var(--color-primary) !important;
+}
+
+.page-hero::before,
+.hero-strip::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(239, 227, 208, 0.68), rgba(111, 138, 114, 0.34)),
+    linear-gradient(180deg, rgba(247, 241, 232, 0.2), rgba(247, 241, 232, 0.1));
+}
+
+.page-hero > img,
+.hero-strip > img {
+  z-index: 0;
+  opacity: 0.42 !important;
+  filter: saturate(0.85) sepia(0.12);
+}
+
+.page-hero > div,
+.hero-strip > div {
+  z-index: 2;
+}
+
+.hero-strip {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px 24px 0 0 !important;
+  background: var(--color-primary) !important;
+}
+
+.hero-panel {
+  width: fit-content;
+  max-width: 44rem;
+  padding: 1.35rem;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.26);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  box-shadow: 0 18px 45px rgba(68, 52, 35, 0.14);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.hero-panel h1,
+.page-hero h1,
+.hero-strip h1 {
+  color: #fffaf4;
+  text-shadow: 0 2px 16px rgba(36, 49, 66, 0.2);
+}
+
+.hero-panel p,
+.page-hero p,
+.hero-strip p {
+  color: rgba(255, 250, 244, 0.92) !important;
+}
+
+section.rounded-lg,
+form.rounded-lg,
+article.rounded-lg,
+a.block.rounded-lg,
+nav,
+#loadingState > div,
+#errorState > div,
+#emptyTrips,
+#emptyState,
+#emptyItineraries,
+#emptyExpenses,
+#shareError,
+#missingTrip,
+#missingBudgetTrip {
+  border-radius: 24px !important;
+  background: var(--color-card) !important;
+  border: 1px solid var(--color-card-border) !important;
+  box-shadow: var(--shadow-glass) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+nav {
+  border-radius: 20px;
+  padding: 0.65rem;
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid var(--color-card-border);
+  box-shadow: 0 12px 30px rgba(80, 65, 45, 0.08);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+#dateSpots article,
+#dateSpots > div,
+#shareDailyPlans article,
+#shareExpenses article,
+#itineraryList article,
+#expenseList article {
+  border-radius: 22px !important;
+  background: rgba(255, 255, 255, 0.52) !important;
+  border: 1px solid rgba(255, 255, 255, 0.42) !important;
+}
+
+.rounded-md,
+.rounded-full {
+  border-color: rgba(255, 255, 255, 0.42) !important;
+}
+
+.rounded-full {
+  background: rgba(239, 227, 208, 0.72) !important;
+}
+
+dl .rounded-md,
+.grid .rounded-md,
+#tripGrid .rounded-md,
+#dateSpots .rounded-md,
+#shareDailyPlans .rounded-md,
+#shareExpenses .rounded-md {
+  background: rgba(244, 231, 220, 0.58) !important;
+  border: 1px solid rgba(255, 255, 255, 0.38);
+}
+
+input,
+textarea,
+select {
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.62) !important;
+  border: 1px solid rgba(255, 255, 255, 0.52) !important;
+  color: var(--color-text) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38);
+}
+
+button,
+a.inline-flex,
+a.rounded-md {
+  border-radius: 16px !important;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+button:hover,
+a.inline-flex:hover,
+a.rounded-md:hover,
+a.block.rounded-lg:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(80, 65, 45, 0.13);
+}
+
+button.bg-persimmon,
+a.bg-persimmon {
+  background: var(--color-accent) !important;
+}
+
+button.bg-matcha,
+a.bg-matcha {
+  background: var(--color-primary) !important;
+}
+
+button.bg-white,
+a.bg-white {
+  background: rgba(255, 255, 255, 0.54) !important;
+  color: var(--color-primary) !important;
+  border: 1px solid var(--color-card-border) !important;
+}
+
+button:disabled {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+#calendarGrid {
+  gap: 0.45rem;
+}
+
+#calendarGrid button,
+#calendarGrid span {
+  border-radius: 16px !important;
+  background: rgba(239, 227, 208, 0.54) !important;
+  border: 1px solid rgba(255, 255, 255, 0.36);
+}
+
+#calendarGrid button {
+  color: var(--color-text) !important;
+}
+
+#calendarGrid button.text-white {
+  background: var(--color-primary) !important;
+  color: #fffaf4 !important;
+  box-shadow: 0 12px 26px rgba(111, 138, 114, 0.22);
+}
+
+#calendarGrid button [class*="bg-persimmon"],
+#calendarGrid button span {
+  background: var(--color-accent) !important;
+}
+
+#tripGrid a,
+#tripList article {
+  min-height: 100%;
+}
+
+@media (max-width: 640px) {
+  .page-hero {
+    margin: 0.75rem;
+    border-radius: 22px;
+  }
+
+  .page-hero > div,
+  .hero-strip {
+    min-height: 28vh;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .hero-panel {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.34);
+  }
+
+  section.rounded-lg,
+  form.rounded-lg,
+  article.rounded-lg,
+  a.block.rounded-lg {
+    background: rgba(255, 255, 255, 0.72) !important;
+  }
+}
